@@ -103,6 +103,7 @@ export interface QuizQuestion {
   correctAnswer: string;
   explanation: string;
   flag?: string;
+  isoCode?: string;
 }
 
 export interface QuizResult {

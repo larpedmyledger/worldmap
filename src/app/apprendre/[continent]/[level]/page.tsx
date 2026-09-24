@@ -49,7 +49,7 @@ function buildLevelQuestions(
     case "6":
       return countries.map((c) => buildLocateOnMap(c));
     default:
-      return generateQuizQuestions(progress, count, continent, "mixed");
+      return generateQuizQuestions(progress, count, continent, "map");
   }
 }
 
@@ -70,7 +70,7 @@ export default function LevelPage() {
 
   const quizQuestions = useMemo(() => {
     if (level !== "quiz") return [];
-    return generateQuizQuestions(progress, 12, continent, "mixed");
+    return generateQuizQuestions(progress, 12, continent, "map");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [continent, level]);
 

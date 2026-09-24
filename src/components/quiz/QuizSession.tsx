@@ -8,7 +8,9 @@ import { WrittenAnswer } from "@/components/quiz/WrittenAnswer";
 import { FeedbackPanel } from "@/components/quiz/FeedbackPanel";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/Button";
+import { FlagImage } from "@/components/ui/FlagImage";
 import { useProgress } from "@/components/providers/ProgressProvider";
+import { useSounds } from "@/hooks/useSounds";
 import { CONTINENT_META, getCountryById } from "@/data/countries";
 
 const WorldMap = dynamic(
@@ -45,6 +47,7 @@ export function QuizSession({
   onFinished: (result: QuizFinishResult) => void;
 }) {
   const { recordAnswer } = useProgress();
+  const sounds = useSounds();
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -93,9 +96,11 @@ export function QuizSession({
       });
       setXpGained(result.xpGained);
       setStreak(result.streak);
+      if (correct) sounds.correct(result.streak);
+      else sounds.wrong();
+    } else {
+      sounds.click();
     }
-
-    return { correct, nextMistakes };
   };
 
   const advance = (finalCorrect: boolean, finalMistakes: QuizFinishResult["mistakes"]) => {
@@ -117,6 +122,7 @@ export function QuizSession({
   };
 
   const handleContinue = () => {
+    sounds.click();
     const finalMistakes = isCorrect
       ? mistakes
       : mistakes.some(
@@ -144,8 +150,12 @@ export function QuizSession({
   const isWritten =
     question.kind === "flag-written" || question.kind === "ocean-written";
 
+  const showFlag =
+    Boolean(question.isoCode) &&
+    (question.kind === "flag-to-country" || question.kind === "flag-written");
+
   return (
-    <div className="space-y-5 max-w-2xl mx-auto">
+    <div className="space-y-5 max-w-3xl mx-auto">
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm text-slate-400">
           <span>{title ?? (examMode ? "Examen" : "Quiz")}</span>
@@ -157,9 +167,9 @@ export function QuizSession({
       </div>
 
       <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5 sm:p-6 space-y-5">
-        {question.flag && (
-          <div className="text-7xl sm:text-8xl text-center leading-none">
-            {question.flag}
+        {showFlag && question.isoCode && (
+          <div className="flex justify-center">
+            <FlagImage isoCode={question.isoCode} name={country?.name} size="xl" />
           </div>
         )}
         <h2 className="text-xl sm:text-2xl font-semibold text-white text-center">
@@ -167,8 +177,7 @@ export function QuizSession({
         </h2>
         {country &&
           !isMap &&
-          question.kind !== "flag-to-country" &&
-          question.kind !== "flag-written" && (
+          !showFlag && (
             <p className="text-center text-sm text-slate-500">
               {CONTINENT_META[country.continent].name}
             </p>
@@ -214,7 +223,7 @@ export function QuizSession({
                 setMapPick(id);
                 finishAnswer(id, id === question.correctAnswer);
               }}
-              className="h-72 sm:h-96"
+              className="h-80 sm:h-[28rem]"
             />
             {!revealed && (
               <p className="text-center text-xs text-slate-500">

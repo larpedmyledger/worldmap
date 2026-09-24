@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { FlagImage } from "@/components/ui/FlagImage";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -11,9 +12,8 @@ import { useProgress } from "@/components/providers/ProgressProvider";
 import { getWeakCountryIds } from "@/lib/srs";
 import { getCountryById } from "@/data/countries";
 import {
-  buildFlagMcq,
-  buildCapitalMcq,
-  getEligibleCountries,
+  buildFindOnMap,
+  buildLocateOnMap,
 } from "@/lib/quiz";
 
 export default function RevoirPage() {
@@ -27,11 +27,10 @@ export default function RevoirPage() {
 
   const questions = useMemo(() => {
     if (!started) return [];
-    const pool = getEligibleCountries(progress, "world", { includeUnknown: true });
     return weakIds.slice(0, 12).flatMap((id, i) => {
       const c = getCountryById(id);
       if (!c) return [];
-      return [i % 2 === 0 ? buildFlagMcq(c, pool) : buildCapitalMcq(c, pool)];
+      return [i % 2 === 0 ? buildFindOnMap(c) : buildLocateOnMap(c)];
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started, weakIds]);
@@ -88,7 +87,7 @@ export default function RevoirPage() {
               if (!c || !p) return null;
               return (
                 <Card key={id} className="flex items-center gap-3">
-                  <span className="text-3xl">{c.flag}</span>
+                  <FlagImage isoCode={c.isoCode} name={c.name} size="md" />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-white">{c.name}</p>
                     <p className="text-xs text-slate-500">

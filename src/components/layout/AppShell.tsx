@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sidebar, MobileNav } from "@/components/layout/Sidebar";
 import { useProgress } from "@/components/providers/ProgressProvider";
+import { unlockAudio } from "@/lib/sounds";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { progress, hydrated } = useProgress();
@@ -16,6 +17,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       router.replace("/onboarding");
     }
   }, [hydrated, progress.onboarded, pathname, router]);
+
+  useEffect(() => {
+    const unlock = () => unlockAudio();
+    window.addEventListener("pointerdown", unlock, { once: true });
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, []);
 
   if (pathname === "/onboarding") {
     return <main className="min-h-dvh">{children}</main>;

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { FlagImage } from "@/components/ui/FlagImage";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -26,7 +27,7 @@ export default function ExamPage() {
 
   const questions = useMemo(() => {
     if (!started) return [];
-    return generateQuizQuestions(progress, 30, "world", "exam");
+    return generateQuizQuestions(progress, 30, "world", "map");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started]);
 
@@ -69,9 +70,10 @@ export default function ExamPage() {
             {result.mistakes.slice(0, 15).map((m, i) => {
               const c = m.countryId ? getCountryById(m.countryId) : null;
               return (
-                <p key={i} className="text-sm text-slate-400">
-                  {c ? `${c.flag} ${c.name}` : m.prompt}
-                </p>
+                <div key={i} className="flex items-center gap-2 text-sm text-slate-400">
+                  {c && <FlagImage isoCode={c.isoCode} name={c.name} size="sm" />}
+                  <span>{c ? c.name : m.prompt}</span>
+                </div>
               );
             })}
           </Card>
@@ -147,15 +149,15 @@ export default function ExamPage() {
     <div className="space-y-6 animate-fade-up max-w-lg">
       <PageHeader
         title="Mode examen"
-        subtitle="30 questions. Aucun feedback jusqu'à la fin."
+        subtitle="30 questions : trouve chaque pays sur la carte. Aucun feedback jusqu'à la fin."
         backHref="/"
       />
       <Card className="space-y-3">
         <p className="text-sm text-slate-400">
-          Simule un vrai examen : drapeaux, capitales, carte et réponses écrites.
+          Simule un vrai examen de localisation : on te donne le nom, tu cliques sur la carte.
         </p>
         <ul className="text-sm text-slate-500 space-y-1 list-disc pl-5">
-          <li>30 questions mélangées</li>
+          <li>30 pays à situer</li>
           <li>Pas d&apos;indice pendant l&apos;épreuve</li>
           <li>Bilan détaillé à la fin</li>
         </ul>

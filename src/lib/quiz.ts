@@ -67,8 +67,8 @@ export function buildFlagMcq(country: Country, pool: Country[]): QuizQuestion {
     countryId: country.id,
     options: opts,
     correctAnswer: country.name,
-    explanation: `${country.flag} ${country.name} — capitale : ${country.capital}. Continent : ${CONTINENT_META[country.continent].name}.`,
-    flag: country.flag,
+    explanation: `${country.name} — capitale : ${country.capital}. Continent : ${CONTINENT_META[country.continent].name}.`,
+    isoCode: country.isoCode,
   };
 }
 
@@ -81,8 +81,8 @@ export function buildCapitalMcq(country: Country, pool: Country[]): QuizQuestion
     countryId: country.id,
     options: opts,
     correctAnswer: country.capital,
-    explanation: `La capitale de ${country.flag} ${country.name} est ${country.capital}.`,
-    flag: country.flag,
+    explanation: `La capitale de ${country.name} est ${country.capital}.`,
+    isoCode: country.isoCode,
   };
 }
 
@@ -95,7 +95,8 @@ export function buildCountryFromCapital(country: Country, pool: Country[]): Quiz
     countryId: country.id,
     options: opts,
     correctAnswer: country.name,
-    explanation: `${country.capital} est la capitale de ${country.flag} ${country.name}.`,
+    explanation: `${country.capital} est la capitale de ${country.name}.`,
+    isoCode: country.isoCode,
   };
 }
 
@@ -106,8 +107,8 @@ export function buildFlagWritten(country: Country): QuizQuestion {
     prompt: "Quel pays possède ce drapeau ? Écris le nom.",
     countryId: country.id,
     correctAnswer: country.name,
-    explanation: `${country.flag} C'est ${country.name} (capitale : ${country.capital}).`,
-    flag: country.flag,
+    explanation: `C'est ${country.name} (capitale : ${country.capital}).`,
+    isoCode: country.isoCode,
   };
 }
 
@@ -118,8 +119,8 @@ export function buildFindOnMap(country: Country): QuizQuestion {
     prompt: `Trouve ${country.name} sur la carte.`,
     countryId: country.id,
     correctAnswer: country.id,
-    explanation: `${country.flag} ${country.name} se trouve en ${CONTINENT_META[country.continent].name}.`,
-    flag: country.flag,
+    explanation: `${country.name} se trouve en ${CONTINENT_META[country.continent].name}.`,
+    isoCode: country.isoCode,
   };
 }
 
@@ -130,8 +131,8 @@ export function buildLocateOnMap(country: Country): QuizQuestion {
     prompt: `Montre-moi où se trouve ${country.name}.`,
     countryId: country.id,
     correctAnswer: country.id,
-    explanation: `${country.flag} ${country.name} — ${CONTINENT_META[country.continent].name}.`,
-    flag: country.flag,
+    explanation: `${country.name} — ${CONTINENT_META[country.continent].name}.`,
+    isoCode: country.isoCode,
   };
 }
 
@@ -195,59 +196,35 @@ export function generateQuizQuestions(
   progress: UserProgress,
   count: number,
   continent?: ContinentId | "world",
-  mode: "mixed" | "flags" | "capitals" | "map" | "exam" = "mixed"
+  mode: "mixed" | "flags" | "capitals" | "map" | "exam" = "map"
 ): QuizQuestion[] {
   const countries = selectCountriesForQuiz(progress, count, continent);
   const pool = getEligibleCountries(progress, continent, { includeUnknown: true });
 
   return countries.map((country, index) => {
-    const mastery = progress.countries[country.id]?.mastery ?? 0;
     let kinds: Array<() => QuizQuestion> = [];
 
     if (mode === "flags") {
       kinds = [
         () => buildFlagMcq(country, pool),
-        () => (mastery > 40 ? buildFlagWritten(country) : buildFlagMcq(country, pool)),
+        () => buildFlagWritten(country),
       ];
     } else if (mode === "capitals") {
       kinds = [
         () => buildCapitalMcq(country, pool),
         () => buildCountryFromCapital(country, pool),
       ];
-    } else if (mode === "map") {
-      kinds = [() => buildFindOnMap(country), () => buildLocateOnMap(country)];
     } else if (mode === "exam") {
+      // Examen = surtout carte (+ un peu de capitales)
       kinds = [
-        () => buildFlagMcq(country, pool),
-        () => buildCapitalMcq(country, pool),
-        () => buildCountryFromCapital(country, pool),
-        () => buildFlagWritten(country),
         () => buildFindOnMap(country),
+        () => buildLocateOnMap(country),
+        () => buildFindOnMap(country),
+        () => buildCapitalMcq(country, pool),
       ];
     } else {
-      if (progress.adaptiveDifficulty <= 1 || mastery < 30) {
-        kinds = [() => buildFlagMcq(country, pool)];
-      } else if (progress.adaptiveDifficulty === 2 || mastery < 50) {
-        kinds = [
-          () => buildFlagMcq(country, pool),
-          () => buildCapitalMcq(country, pool),
-        ];
-      } else if (progress.adaptiveDifficulty === 3) {
-        kinds = [
-          () => buildFlagMcq(country, pool),
-          () => buildCapitalMcq(country, pool),
-          () => buildCountryFromCapital(country, pool),
-          () => buildFindOnMap(country),
-        ];
-      } else {
-        kinds = [
-          () => buildFlagMcq(country, pool),
-          () => buildCapitalMcq(country, pool),
-          () => buildCountryFromCapital(country, pool),
-          () => buildFlagWritten(country),
-          () => buildLocateOnMap(country),
-        ];
-      }
+      // Défaut / mixed = situer sur la carte
+      kinds = [() => buildFindOnMap(country), () => buildLocateOnMap(country)];
     }
 
     const builder = kinds[index % kinds.length]!;

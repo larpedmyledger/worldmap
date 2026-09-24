@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { FlagImage } from "@/components/ui/FlagImage";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -109,7 +110,7 @@ export default function PaysPage() {
           return (
             <Card key={c.id} className="space-y-2">
               <div className="flex items-center gap-3">
-                <span className="text-3xl">{c.flag}</span>
+                <FlagImage isoCode={c.isoCode} name={c.name} size="md" />
                 <div className="min-w-0">
                   <p className="font-semibold text-white truncate">{c.name}</p>
                   <p className="text-xs text-slate-500">Capitale : {c.capital}</p>

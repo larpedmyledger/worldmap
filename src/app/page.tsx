@@ -28,10 +28,10 @@ export default function HomePage() {
       <header className="space-y-2">
         <p className="text-sm font-medium text-indigo-300">🌍 WorldMap</p>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-          Apprends le monde, un pays à la fois.
+          Situer les pays sur la carte.
         </h1>
         <p className="text-slate-400 max-w-xl">
-          Progression douce, révision intelligente, carte interactive.
+          Apprends où est chaque pays — clique, mémorise, révise.
         </p>
       </header>
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { FlagImage } from "@/components/ui/FlagImage";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { getCountryById, CONTINENT_META } from "@/data/countries";
@@ -33,7 +34,7 @@ export default function CartePage() {
       />
       {country && (
         <Card className="flex items-center gap-4">
-          <span className="text-5xl">{country.flag}</span>
+          <FlagImage isoCode={country.isoCode} name={country.name} size="lg" />
           <div>
             <p className="text-xl font-semibold text-white">{country.name}</p>
             <p className="text-sm text-slate-400">

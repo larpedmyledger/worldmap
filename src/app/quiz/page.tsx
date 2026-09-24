@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { FlagImage } from "@/components/ui/FlagImage";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -27,7 +28,7 @@ export default function QuizPage() {
 
   const questions = useMemo(() => {
     if (!started) return [];
-    return generateQuizQuestions(progress, count, continent, "mixed");
+    return generateQuizQuestions(progress, count, continent, "map");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started, count, continent]);
 
@@ -49,9 +50,10 @@ export default function QuizPage() {
             {result.mistakes.map((m, i) => {
               const c = m.countryId ? getCountryById(m.countryId) : null;
               return (
-                <p key={i} className="text-sm text-slate-400">
-                  {c ? `${c.flag} ${c.name}` : m.prompt} — tu as dit « {m.answer} »
-                </p>
+                <div key={i} className="flex items-center gap-2 text-sm text-slate-400">
+                  {c && <FlagImage isoCode={c.isoCode} name={c.name} size="sm" />}
+                  <span>{c ? c.name : m.prompt}</span>
+                </div>
               );
             })}
           </Card>
@@ -102,15 +104,15 @@ export default function QuizPage() {
     <div className="space-y-6 animate-fade-up">
       <PageHeader
         title="Quiz rapide"
-        subtitle="Questions choisies selon tes erreurs, ton niveau et tes pays récents."
+        subtitle="On te donne le nom d'un pays — tu le trouves sur la carte."
       />
 
       {stats.known < 4 && (
         <Card className="border-amber-500/30 bg-amber-500/5">
           <p className="text-sm text-amber-200">
-            Tu connais encore peu de pays. Le quiz restera simple — ou commence par{" "}
+            Tu connais encore peu de pays. Commence par{" "}
             <Link href="/apprendre" className="underline">
-              apprendre
+              découvrir leur place sur la carte
             </Link>
             .
           </p>

@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useProgress } from "@/components/providers/ProgressProvider";
+import { unlockAudio } from "@/lib/sounds";
 
 export default function ParametresPage() {
   const { progress, updatePreferences, resetAll } = useProgress();
@@ -13,6 +14,24 @@ export default function ParametresPage() {
       <PageHeader title="Paramètres" backHref="/" />
 
       <Card className="space-y-4">
+        <label className="flex items-center justify-between gap-4">
+          <div>
+            <p className="font-medium text-white">Effets sonores</p>
+            <p className="text-xs text-slate-500">
+              Sons pour bonnes / mauvaises réponses
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            checked={progress.preferences.sound}
+            onChange={(e) => {
+              unlockAudio();
+              updatePreferences({ sound: e.target.checked });
+            }}
+            className="h-5 w-5 accent-indigo-500"
+          />
+        </label>
+
         <label className="flex items-center justify-between gap-4">
           <div>
             <p className="font-medium text-white">Parcours examen</p>
